@@ -1,0 +1,167 @@
+\
+\
+creating virtual env:
+1. install virtualenvwrapper-win
+2.mkvirtualenv test
+3.workon test
+4.pip install django
+5.go to the D:/ create a folder (like telusko)
+---------
+STARTTING NEW PROJECT:
+1.django-admin startproject telusko  --->this will create your project
+2.python manage.py runserver ---->this will run the on localhost:8000
+------------------
+important terms files inside crweated project:
+
+1.manage.py is useful for ur project
+2.settings.py :
+	DEBUG ==true ----> will give you the information that is happenoing in the backend ,,,, before deploying to the server make it False
+-----------------------------
+Making new app inside the project:
+1.in terminal: python manage.py calc  --->here calc is app name
+
+----------------------------------
+ Adding templates settings:
+1.DIRS:[os.path.join(BASE_DIR,'templates')  ------> templates is the folrder name where the html file will be stored
+----------------------------------
+shortcut in visual studio to get basic html file is press :! and press enter
+-------------
+
+install jinja ---> it is used for adding a block of code of python in HTML.
+------------------
+
+
+to connect one html to other html file :
+1.for example create a base.html file and in its body write ------>{%block content %}    ...your codes... bgcolor='cyan'  {% endblock %}
+2.use------------>  {%extend 'base.html' %}
+3.and to use the block content from the base.html --------->{% block content %}      {%endblock %}
+-------------------------
+
+
+MVT---model view template
+as a user you want to fetch data by sending a request to the server,  this request will go to django framework,   in the django framework you will get the specific file url
+In the url we will do the mapping and that navigation will send to the view .
+In views we write the logic and this views will use the model and template so what data and template will be decided by the view
+Model will work with data ,Views will work with logic and template will work with layout
+
+
+
+--------------------------------
+
+WAY TO GETTING UI:
+1.download the free template .
+
+-------------------------------
+Making dynamic website:
+1.make the new app (say travello) on which we will work
+2.now copy the index.html file which we got from downloaded online template in the template folder that we created earlier.
+3.in travello create urls.py ---->write the codes for importing path, views -----> in which homepage will call index from views
+ 4.in views.py of travello create index function which will render index.html file
+5.In urls.py of telusko (project name) we have to change the homepage path to include('travello.urls') --->if we don't want travello as homepage then in path 'travello/' ,include('travello.urls')
+
+
+-------------------------------
+
+SETTINGS TO IMPORTING TEMPLATE TO OUR SERVER:
+1.CREATE A FOLDER IN TELUSKO (project name) and lets name thwe folder as static
+2.import all the online downloaded template in the static folder.
+3.go to the settings.py write the path to fetch to static folder CODE:
+	STATICFILES_DIRS=[                                      ------>this will say where you will find all files
+		os.path.join(BASE_DIR,'static')                ------->this is basically joining the base path with static file
+	]
+	STATIC_ROOT = os.path.join(BASE_DIR,'assets')     ----> this will import files from static as name of assets
+4.now we have to pass the command to django to import the static file:
+	python manage.py collectstatic
+5.now go to the index.html and specify the path of static folder for all href tag with {% static'      ' %}             &&&& in order to load static folder we have to say django on the top of index.html {% load static %}
+
+-----------------------------------------------------------
+For making register and login :   first create a list for regisster and login:
+
+
+1.<a href ="accounts/register"> Register </a>
+ <a href = "accounts/login"> Login </a>  </li>
+
+
+
+
+
+
+--------------------------------------------------------
+resistering user:
+1.use method post in register form
+2.go oto views :
+	we call post request to fetch data and get request to open reggister.html
+	so we use if and else conditions:
+if request.method =='post':
+	first_name=request.post['firstname']
+
+
+else:
+return render(request,'register.html')
+
+3.In order to save the data we have to sql query (ORM):  In django the model object is inbuilt you have just use it 
+ a. in views.py import User ,auth from contrib.auth.models
+ b.now we have to create a user object: 
+	user = User.objects.create_user(username=username,firsrtname =firstname,email=    )
+	user.save();
+	return redirect('login')  ------------------->import redirect also ,,,,it will redirct to login page
+c.go to the pgadmin in user section you will find the datas tthere.
+
+4.in order to verify password with confirm password ,,, in the section 3b. above user write the condition if password1==password2 
+ in order to check the same username or not : inside the if of password make if condition : if User.objects.filter(username=username).exiSts() : print (same username)  else : 3b.
+
+
+-------------------------------------------------------
+Sending messages to the webpage using inbuilt feature:
+1import messsages    from django.contrib import messages
+   messages.info(request,'username taken')
+2.go to register.html use jinja to print message   ,,,,,,,
+	{%for message in messages %}
+		{{message}}
+	{% endfor %}
+
+
+
+--------------------------------------------------------
+
+LOGIN:
+
+1.create a login.html
+2.in urls.py ,,,,,,,,,,,,,,, give the mapping for login 
+3.in views.py create a function of login . 
+	now the same function will recalled for post and for get so create the if else condition  ,,,,,,,,,for get we call login.html page
+	if request.method =='POST':
+	username= request.POST['username']
+	password = request.POST['passsword']
+
+now in oreder to validate we have a inbuilt feature so we will use that:
+user = auth.authenticate(username=username,password=password)
+if user is not None:
+ auth.login(request,user)
+ return redirect("/")
+else:
+ messages,info(request,'invalid credential")
+ return redirect("login")
+
+
+
+---------------------------------------
+
+LOGOUT:
+
+1.GO TO THE index.html
+ before login and register tag we have to make condition :
+	{%if user.is.authenticated %}                 -------------> this is used to authencated logon user ->innbuilt feature
+	<li>Hello,{{user.first_name}}</li>
+	<li> <a href ="accounts/logout"> LOGOUT</a> </li>
+	{% else %}
+	accounts/register
+	accounts/login
+2.go to the url and do the mapping for logout	
+
+3.in views.py make a function for logout
+ 
+def logout(request):
+	auth.logout(request)   ------------>inbuilt feature to logout
+	return redirect('/')
+
